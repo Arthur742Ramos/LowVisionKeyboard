@@ -1,0 +1,57 @@
+# Xcode
+DerivedData/
+build/
+*.xcworkspace/xcuserdata/
+*.xcuserstate
+*.xccheckout
+*.xcscmblueprint
+*.moved-aside
+
+# SwiftPM
+.swiftpm/
+.build/
+
+# CocoaPods
+Pods/
+
+# Carthage
+Carthage/Build/
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/**/*.png
+fastlane/test_output
+fastlane/README.md
+
+# Bundler
+.bundle/
+
+# User data
+.DS_Store
+*.swp
+*~
+
+# Archives
+*.ipa
+*.dSYM
+*.dSYM.zip
+
+# Crashlytics
+*.crash
+
+# App packaging
+*.xcarchive
+
+# Playground
+Timeline.xctimeline
+playground.xcworkspace
+
+# Firebase
+GoogleService-Info.plist
+
+# Simulator logs
+*.simdevicelog
+
+# SwiftPM artifacts
+Package.resolved
