@@ -13,8 +13,8 @@ class KeyboardViewController: UIInputViewController {
     private var currentWord: String = ""
 
     // User preferences
-    private var keySize: CGFloat = 60
-    private var fontSize: CGFloat = 24
+    private var keySize: CGFloat = 76 // larger default for low vision
+    private var fontSize: CGFloat = 30 // larger default for low vision
     private var highContrast: Bool = true
     private var soundEnabled: Bool = true
     private var hapticEnabled: Bool = true
@@ -48,17 +48,19 @@ class KeyboardViewController: UIInputViewController {
         let defaults = UserDefaults(suiteName: "group.com.ipadkeyboard.accessible") ?? UserDefaults.standard
 
         keySize = CGFloat(defaults.float(forKey: "keySize"))
-        if keySize == 0 { keySize = 60 }
+        if keySize == 0 { keySize = 76 }
 
         fontSize = CGFloat(defaults.float(forKey: "fontSize"))
-        if fontSize == 0 { fontSize = 24 }
+        if fontSize == 0 { fontSize = 30 }
 
         highContrast = defaults.object(forKey: "highContrast") as? Bool ?? true
         soundEnabled = defaults.object(forKey: "soundEnabled") as? Bool ?? true
         hapticEnabled = defaults.object(forKey: "hapticEnabled") as? Bool ?? true
-        if let savedLanguage = defaults.string(forKey: "selectedLanguage"),
-           let language = WordPredictionEngine.Language(rawValue: savedLanguage) {
-            currentLanguage = language
+
+        // Auto-detect: if preferred language is Portuguese, use pt-BR, otherwise English.
+        let preferred = Locale.preferredLanguages.first?.lowercased() ?? ""
+        if preferred.hasPrefix("pt") {
+            currentLanguage = .portugueseBrazil
         } else {
             currentLanguage = .english
         }
@@ -71,6 +73,7 @@ class KeyboardViewController: UIInputViewController {
         suggestionBar.onSuggestionSelected = { [weak self] suggestion in
             self?.insertSuggestion(suggestion)
         }
+        suggestionBar.configure(fontSize: fontSize, useHighContrast: highContrast)
         view.addSubview(suggestionBar)
 
         keyboardView = AccessibleKeyboardView()
@@ -103,9 +106,20 @@ class KeyboardViewController: UIInputViewController {
         let bounds = view.bounds
         guard bounds.width > 0 && bounds.height > 0 else { return }
 
-        let suggestionHeight: CGFloat = 50
-        suggestionBar.frame = CGRect(x: 0, y: 0, width: bounds.width, height: suggestionHeight)
-        keyboardView.frame = CGRect(x: 0, y: suggestionHeight, width: bounds.width, height: bounds.height - suggestionHeight)
+        let insets = view.safeAreaInsets
+        let availableHeight = bounds.height - insets.top - insets.bottom
+
+        // Suggestion bar adapts: roomy by default, but capped in compact layouts
+        let baseSuggestionHeight = max(68, fontSize * 2.2)
+        let suggestionHeight = min(baseSuggestionHeight, availableHeight * 0.25)
+        let verticalSpacing: CGFloat = min(12, max(6, availableHeight * 0.02))
+
+        let suggestionY = insets.top
+        suggestionBar.frame = CGRect(x: 0, y: suggestionY, width: bounds.width, height: suggestionHeight)
+
+        let keyboardY = suggestionY + suggestionHeight + verticalSpacing
+        let keyboardHeight = bounds.height - keyboardY - insets.bottom
+        keyboardView.frame = CGRect(x: 0, y: keyboardY, width: bounds.width, height: max(0, keyboardHeight))
         keyboardView.layoutIfNeeded()
     }
 
@@ -116,6 +130,7 @@ class KeyboardViewController: UIInputViewController {
         keyboardView?.soundEnabled = soundEnabled
         keyboardView?.hapticEnabled = hapticEnabled
         keyboardView?.updateAppearance()
+        suggestionBar?.configure(fontSize: fontSize, useHighContrast: highContrast)
     }
 
     // MARK: - Key Handling

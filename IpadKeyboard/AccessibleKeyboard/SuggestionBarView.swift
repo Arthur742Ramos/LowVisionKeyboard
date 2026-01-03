@@ -22,6 +22,7 @@ class SuggestionBarView: UIView {
     private var suggestionButtons: [UIButton] = []
     private var fontSize: CGFloat = 24
     private var useHighContrast = true
+    private let containerPadding: CGFloat = 10
     
     // MARK: - Initialization
     
@@ -39,21 +40,19 @@ class SuggestionBarView: UIView {
     
     private func setupView() {
         backgroundColor = UIColor(red: 0.12, green: 0.12, blue: 0.15, alpha: 1.0)
+        layer.cornerRadius = 10
+        layer.masksToBounds = false
+        layer.shadowColor = UIColor.black.cgColor
+        layer.shadowOpacity = 0.2
+        layer.shadowRadius = 6
+        layer.shadowOffset = CGSize(width: 0, height: 2)
         
         stackView = UIStackView()
         stackView.axis = .horizontal
         stackView.distribution = .fillEqually
         stackView.spacing = 8
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        
+        stackView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         addSubview(stackView)
-        
-        NSLayoutConstraint.activate([
-            stackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 8),
-            stackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -8),
-            stackView.topAnchor.constraint(equalTo: topAnchor, constant: 4),
-            stackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -4)
-        ])
         
         // Create 3 suggestion buttons
         for i in 0..<3 {
@@ -66,15 +65,23 @@ class SuggestionBarView: UIView {
     
     private func createSuggestionButton() -> UIButton {
         let button = UIButton(type: .system)
-        button.titleLabel?.font = UIFont.systemFont(ofSize: fontSize, weight: .semibold)
-        button.titleLabel?.adjustsFontSizeToFitWidth = true
-        button.titleLabel?.minimumScaleFactor = 0.7
-        button.layer.cornerRadius = 6
+    button.titleLabel?.font = UIFont.systemFont(ofSize: fontSize, weight: .bold)
+    button.titleLabel?.adjustsFontSizeToFitWidth = true
+    button.titleLabel?.minimumScaleFactor = 0.7
+    button.titleLabel?.lineBreakMode = .byTruncatingTail
+    button.layer.cornerRadius = 8
+    button.contentEdgeInsets = UIEdgeInsets(top: 12, left: 14, bottom: 12, right: 14)
         button.addTarget(self, action: #selector(suggestionTapped(_:)), for: .touchUpInside)
         
         updateButtonAppearance(button)
         
         return button
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        let verticalInset = containerPadding * 0.6
+        stackView.frame = bounds.insetBy(dx: containerPadding, dy: verticalInset)
     }
     
     private func updateButtonAppearance(_ button: UIButton) {

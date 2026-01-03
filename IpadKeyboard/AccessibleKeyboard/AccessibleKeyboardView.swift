@@ -26,14 +26,26 @@ class AccessibleKeyboardView: UIView {
     // MARK: - Private Properties
     private var isShifted: Bool = false
     private var isCapsLock: Bool = false
+    private var isNumberMode: Bool = false
     private var keyViews: [KeyView] = []
 
-    private let keyboardLayout: [[String]] = [
+    private let letterLayout: [[String]] = [
         ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
         ["A", "S", "D", "F", "G", "H", "J", "K", "L"],
         ["⇧", "Z", "X", "C", "V", "B", "N", "M", "⌫"],
         ["🌐", "123", " ", ".", "↩"]
     ]
+
+    private let numberLayout: [[String]] = [
+        ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"],
+        ["-", "/", ";", ":", "(", ")", "$", "&", "@", "\""],
+        ["ABC", ".", ",", "?", "!", "'", "⌫"],
+        ["🌐", "ABC", " ", ".", "↩"]
+    ]
+
+    private var activeLayout: [[String]] {
+        isNumberMode ? numberLayout : letterLayout
+    }
 
     private let feedbackGenerator = UIImpactFeedbackGenerator(style: .light)
 
@@ -59,7 +71,7 @@ class AccessibleKeyboardView: UIView {
         keyViews.forEach { $0.removeFromSuperview() }
         keyViews.removeAll()
 
-        for row in keyboardLayout {
+        for row in activeLayout {
             for keyChar in row {
                 let keyView = KeyView()
                 keyView.setTitle(keyChar)
@@ -67,7 +79,7 @@ class AccessibleKeyboardView: UIView {
                 keyView.highContrast = highContrast
                 keyView.addTarget(self, action: #selector(keyTapped(_:)), for: .touchUpInside)
 
-                if ["⇧", "⌫", "↩", "123", "🌐"].contains(keyChar) {
+                if ["⇧", "⌫", "↩", "123", "ABC", "🌐"].contains(keyChar) {
                     keyView.isSpecialKey = true
                 }
                 if keyChar == " " { keyView.isSpaceKey = true }
@@ -85,16 +97,16 @@ class AccessibleKeyboardView: UIView {
         let bounds = self.bounds
         guard bounds.width > 0 && bounds.height > 0 else { return }
 
-        let horizontalPadding: CGFloat = 4
-        let verticalPadding: CGFloat = 6
-        let keySpacing: CGFloat = 5
-        let rowCount = keyboardLayout.count
+    let horizontalPadding: CGFloat = 8
+    let verticalPadding: CGFloat = 10
+    let keySpacing: CGFloat = 8
+    let rowCount = activeLayout.count
 
-        let availableHeight = bounds.height - (verticalPadding * 2) - (keySpacing * CGFloat(rowCount - 1))
-        let rowHeight = availableHeight / CGFloat(rowCount)
+    let availableHeight = bounds.height - (verticalPadding * 2) - (keySpacing * CGFloat(rowCount - 1))
+    let rowHeight = max(10, availableHeight / CGFloat(rowCount))
 
         var keyIndex = 0
-        for (rowIndex, row) in keyboardLayout.enumerated() {
+    for (rowIndex, row) in activeLayout.enumerated() {
             let availableWidth = bounds.width - (horizontalPadding * 2) - (keySpacing * CGFloat(row.count - 1))
 
             var keyWidths: [CGFloat] = []
@@ -119,7 +131,7 @@ class AccessibleKeyboardView: UIView {
                 if keyIndex < keyViews.count {
                     let keyView = keyViews[keyIndex]
                     keyView.frame = CGRect(x: xOffset, y: yOffset, width: width, height: rowHeight)
-                    keyView.fontSize = min(fontSize, rowHeight * 0.5)
+                    keyView.fontSize = min(fontSize, rowHeight * 0.65)
                     keyIndex += 1
                 }
                 xOffset += width + keySpacing
@@ -136,7 +148,7 @@ class AccessibleKeyboardView: UIView {
 
         switch title {
         case "⇧":
-            handleShift()
+            if !isNumberMode { handleShift() }
         case "⌫":
             onBackspace?()
         case "↩":
@@ -145,14 +157,16 @@ class AccessibleKeyboardView: UIView {
             onSpace?()
         case "🌐":
             onGlobePress?()
-        case "123":
-            break // TODO: number/symbol mode
+        case "123", "ABC":
+            toggleNumberMode()
         default:
             let keyToInsert = (isShifted || isCapsLock) ? title.uppercased() : title.lowercased()
             onKeyTap?(keyToInsert)
-            if isShifted && !isCapsLock {
-                isShifted = false
-                updateShiftState()
+            if !isNumberMode {
+                if isShifted && !isCapsLock {
+                    isShifted = false
+                    updateShiftState()
+                }
             }
         }
     }
@@ -167,6 +181,14 @@ class AccessibleKeyboardView: UIView {
             isShifted = true
         }
         updateShiftState()
+    }
+
+    private func toggleNumberMode() {
+        isNumberMode.toggle()
+        isShifted = false
+        isCapsLock = false
+        createKeys()
+        setNeedsLayout()
     }
 
     private func updateShiftState() {
