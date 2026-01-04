@@ -15,6 +15,9 @@ class AccessibleKeyboardView: UIView {
     var highContrast: Bool = true { didSet { updateAppearance() } }
     var soundEnabled: Bool = true
     var hapticEnabled: Bool = true
+    
+    // Language setting - determines which layout to use
+    var isPortuguese: Bool = false { didSet { if oldValue != isPortuguese { createKeys(); setNeedsLayout() } } }
 
     // MARK: - Callbacks
     var onKeyTap: ((String) -> Void)?
@@ -27,13 +30,31 @@ class AccessibleKeyboardView: UIView {
     private var isShifted: Bool = false
     private var isCapsLock: Bool = false
     private var isNumberMode: Bool = false
+    private var isAccentMode: Bool = false
     private var keyViews: [KeyView] = []
 
-    private let letterLayout: [[String]] = [
+    // English QWERTY layout
+    private let englishLetterLayout: [[String]] = [
         ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
         ["A", "S", "D", "F", "G", "H", "J", "K", "L"],
         ["⇧", "Z", "X", "C", "V", "B", "N", "M", "⌫"],
         ["🌐", "123", " ", ".", "↩"]
+    ]
+    
+    // Portuguese QWERTY layout - includes Ç key
+    private let portugueseLetterLayout: [[String]] = [
+        ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
+        ["A", "S", "D", "F", "G", "H", "J", "K", "L", "Ç"],
+        ["⇧", "Z", "X", "C", "V", "B", "N", "M", "⌫"],
+        ["🌐", "123", "ÁÀ", " ", ".", "↩"]
+    ]
+    
+    // Accent layout for Portuguese - easy access to all accented characters
+    private let accentLayout: [[String]] = [
+        ["Á", "À", "Â", "Ã", "É", "Ê", "Í", "Ó", "Ô", "Õ"],
+        ["Ú", "Ç", "1", "2", "3", "4", "5", "6", "7", "8"],
+        ["ABC", "9", "0", "!", "?", ",", ".", "⌫"],
+        ["🌐", "ABC", " ", ".", "↩"]
     ]
 
     private let numberLayout: [[String]] = [
@@ -42,9 +63,14 @@ class AccessibleKeyboardView: UIView {
         ["ABC", ".", ",", "?", "!", "'", "⌫"],
         ["🌐", "ABC", " ", ".", "↩"]
     ]
+    
+    private var letterLayout: [[String]] {
+        isPortuguese ? portugueseLetterLayout : englishLetterLayout
+    }
 
     private var activeLayout: [[String]] {
-        isNumberMode ? numberLayout : letterLayout
+        if isAccentMode { return accentLayout }
+        return isNumberMode ? numberLayout : letterLayout
     }
 
     private let feedbackGenerator = UIImpactFeedbackGenerator(style: .light)
@@ -79,7 +105,7 @@ class AccessibleKeyboardView: UIView {
                 keyView.highContrast = highContrast
                 keyView.addTarget(self, action: #selector(keyTapped(_:)), for: .touchUpInside)
 
-                if ["⇧", "⌫", "↩", "123", "ABC", "🌐"].contains(keyChar) {
+                if ["⇧", "⌫", "↩", "123", "ABC", "🌐", "ÁÀ"].contains(keyChar) {
                     keyView.isSpecialKey = true
                 }
                 if keyChar == " " { keyView.isSpaceKey = true }
@@ -115,7 +141,7 @@ class AccessibleKeyboardView: UIView {
                 let multiplier: CGFloat
                 switch keyChar {
                 case " ": multiplier = 4.0
-                case "⇧", "⌫", "↩", "123": multiplier = 1.5
+                case "⇧", "⌫", "↩", "123", "ABC", "ÁÀ": multiplier = 1.5
                 default: multiplier = 1.0
                 }
                 keyWidths.append(multiplier)
@@ -148,7 +174,7 @@ class AccessibleKeyboardView: UIView {
 
         switch title {
         case "⇧":
-            if !isNumberMode { handleShift() }
+            if !isNumberMode && !isAccentMode { handleShift() }
         case "⌫":
             onBackspace?()
         case "↩":
@@ -157,12 +183,22 @@ class AccessibleKeyboardView: UIView {
             onSpace?()
         case "🌐":
             onGlobePress?()
-        case "123", "ABC":
+        case "123":
             toggleNumberMode()
+        case "ABC":
+            // Return to letter mode from either number or accent mode
+            isNumberMode = false
+            isAccentMode = false
+            isShifted = false
+            isCapsLock = false
+            createKeys()
+            setNeedsLayout()
+        case "ÁÀ":
+            toggleAccentMode()
         default:
             let keyToInsert = (isShifted || isCapsLock) ? title.uppercased() : title.lowercased()
             onKeyTap?(keyToInsert)
-            if !isNumberMode {
+            if !isNumberMode && !isAccentMode {
                 if isShifted && !isCapsLock {
                     isShifted = false
                     updateShiftState()
@@ -184,7 +220,17 @@ class AccessibleKeyboardView: UIView {
     }
 
     private func toggleNumberMode() {
-        isNumberMode.toggle()
+        isNumberMode = true
+        isAccentMode = false
+        isShifted = false
+        isCapsLock = false
+        createKeys()
+        setNeedsLayout()
+    }
+    
+    private func toggleAccentMode() {
+        isAccentMode.toggle()
+        isNumberMode = false
         isShifted = false
         isCapsLock = false
         createKeys()

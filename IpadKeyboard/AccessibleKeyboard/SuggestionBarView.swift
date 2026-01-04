@@ -51,8 +51,21 @@ class SuggestionBarView: UIView {
         stackView.axis = .horizontal
         stackView.distribution = .fillEqually
         stackView.spacing = 8
-        stackView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        stackView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(stackView)
+        
+        let verticalInset = containerPadding * 0.6
+        
+        // Use Auto Layout with lower priority for width to avoid zero-width conflicts
+        let trailingConstraint = stackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -containerPadding)
+        trailingConstraint.priority = UILayoutPriority(999)
+        
+        NSLayoutConstraint.activate([
+            stackView.topAnchor.constraint(equalTo: topAnchor, constant: verticalInset),
+            stackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -verticalInset),
+            stackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: containerPadding),
+            trailingConstraint
+        ])
         
         // Create 3 suggestion buttons
         for i in 0..<3 {
@@ -65,12 +78,21 @@ class SuggestionBarView: UIView {
     
     private func createSuggestionButton() -> UIButton {
         let button = UIButton(type: .system)
-    button.titleLabel?.font = UIFont.systemFont(ofSize: fontSize, weight: .bold)
-    button.titleLabel?.adjustsFontSizeToFitWidth = true
-    button.titleLabel?.minimumScaleFactor = 0.7
-    button.titleLabel?.lineBreakMode = .byTruncatingTail
-    button.layer.cornerRadius = 8
-    button.contentEdgeInsets = UIEdgeInsets(top: 12, left: 14, bottom: 12, right: 14)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: fontSize, weight: .bold)
+        button.titleLabel?.adjustsFontSizeToFitWidth = true
+        button.titleLabel?.minimumScaleFactor = 0.7
+        button.titleLabel?.lineBreakMode = .byTruncatingTail
+        button.layer.cornerRadius = 8
+        
+        // Use modern configuration API for iOS 15+
+        if #available(iOS 15.0, *) {
+            var config = UIButton.Configuration.plain()
+            config.contentInsets = NSDirectionalEdgeInsets(top: 12, leading: 14, bottom: 12, trailing: 14)
+            button.configuration = config
+        } else {
+            button.contentEdgeInsets = UIEdgeInsets(top: 12, left: 14, bottom: 12, right: 14)
+        }
+        
         button.addTarget(self, action: #selector(suggestionTapped(_:)), for: .touchUpInside)
         
         updateButtonAppearance(button)
@@ -78,12 +100,6 @@ class SuggestionBarView: UIView {
         return button
     }
 
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        let verticalInset = containerPadding * 0.6
-        stackView.frame = bounds.insetBy(dx: containerPadding, dy: verticalInset)
-    }
-    
     private func updateButtonAppearance(_ button: UIButton) {
         if useHighContrast {
             button.backgroundColor = UIColor(red: 0.25, green: 0.25, blue: 0.3, alpha: 1.0)
@@ -104,7 +120,19 @@ class SuggestionBarView: UIView {
         self.useHighContrast = useHighContrast
         
         for button in suggestionButtons {
-            button.titleLabel?.font = UIFont.systemFont(ofSize: fontSize, weight: .semibold)
+            // For iOS 15+, we need to update the configuration to change the font
+            if #available(iOS 15.0, *) {
+                var config = button.configuration ?? UIButton.Configuration.plain()
+                config.contentInsets = NSDirectionalEdgeInsets(top: 12, leading: 14, bottom: 12, trailing: 14)
+                config.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
+                    var outgoing = incoming
+                    outgoing.font = UIFont.systemFont(ofSize: fontSize, weight: .semibold)
+                    return outgoing
+                }
+                button.configuration = config
+            } else {
+                button.titleLabel?.font = UIFont.systemFont(ofSize: fontSize, weight: .semibold)
+            }
             updateButtonAppearance(button)
         }
     }

@@ -29,9 +29,6 @@ struct ContentView: View {
     @AppStorage("enableAutocomplete", store: UserDefaults(suiteName: "group.com.ipadkeyboard.accessible"))
     private var enableAutocomplete: Bool = true
     
-    @AppStorage("selectedLanguage", store: UserDefaults(suiteName: "group.com.ipadkeyboard.accessible"))
-    private var selectedLanguage: String = Localized.isPortuguese ? "pt-BR" : "en"
-    
     var body: some View {
         NavigationView {
             ScrollView {
@@ -42,9 +39,6 @@ struct ContentView: View {
                     
                     // Setup Instructions
                     setupInstructionsSection
-                    
-                    // Language Selection
-                    languageSection
                     
                     // Key Size Settings
                     keySizeSection
@@ -81,13 +75,11 @@ struct ContentView: View {
                 .foregroundColor(.blue)
                 .accessibilityHidden(true)
             
-            Text(Localized.isPortuguese ? "Teclado para Baixa Visão" : "Low Vision Keyboard")
+            Text(Localized.Sections.header)
                 .font(.title)
                 .fontWeight(.bold)
             
-            Text(Localized.isPortuguese ? 
-                 "Personalize seu teclado para melhor visibilidade e acessibilidade" : 
-                 "Customize your keyboard for better visibility and accessibility")
+            Text(Localized.Sections.headerDescription)
                 .font(.body)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
@@ -104,22 +96,17 @@ struct ContentView: View {
                 .font(.headline)
             
             VStack(alignment: .leading, spacing: 12) {
-                InstructionRow(number: 1, text: Localized.isPortuguese ? 
-                    "Abra o app Ajustes no seu iPad" : "Open Settings app on your iPad")
-                InstructionRow(number: 2, text: Localized.isPortuguese ? 
-                    "Vá em Geral → Teclado → Teclados" : "Go to General → Keyboard → Keyboards")
-                InstructionRow(number: 3, text: Localized.isPortuguese ? 
-                    "Toque em \"Adicionar Novo Teclado...\"" : "Tap \"Add New Keyboard...\"")
-                InstructionRow(number: 4, text: Localized.isPortuguese ? 
-                    "Selecione \"Teclado Acessível\"" : "Select \"Accessible Keyboard\"")
-                InstructionRow(number: 5, text: Localized.isPortuguese ? 
-                    "Permita Acesso Total para todos os recursos" : "Allow Full Access for all features")
+                InstructionRow(number: 1, text: Localized.Instructions.step1)
+                InstructionRow(number: 2, text: Localized.Instructions.step2)
+                InstructionRow(number: 3, text: Localized.Instructions.step3)
+                InstructionRow(number: 4, text: Localized.Instructions.step4)
+                InstructionRow(number: 5, text: Localized.Instructions.step5)
             }
             
             Button(action: openSettings) {
                 HStack {
                     Image(systemName: "gear")
-                    Text(Localized.isPortuguese ? "Abrir Ajustes" : "Open Settings")
+                    Text(Localized.Instructions.openSettings)
                 }
                 .frame(maxWidth: .infinity)
                 .padding()
@@ -127,32 +114,7 @@ struct ContentView: View {
                 .foregroundColor(.white)
                 .cornerRadius(12)
             }
-            .accessibilityHint(Localized.isPortuguese ? "Abre o app Ajustes" : "Opens the Settings app")
-        }
-        .padding()
-        .background(Color(.secondarySystemGroupedBackground))
-        .cornerRadius(16)
-    }
-    
-    // MARK: - Language Section
-    
-    private var languageSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Label(Localized.Settings.language, systemImage: "globe")
-                .font(.headline)
-            
-            Picker(Localized.Settings.language, selection: $selectedLanguage) {
-                Text("English").tag("en")
-                Text("Português (Brasil)").tag("pt-BR")
-            }
-            .pickerStyle(.segmented)
-            // Language setting is saved via @AppStorage and will be read by the keyboard extension
-            
-            Text(Localized.isPortuguese ? 
-                 "Selecione o idioma para previsão de palavras e correção ortográfica" :
-                 "Select language for word prediction and spell checking")
-                .font(.caption)
-                .foregroundColor(.secondary)
+            .accessibilityHint(Localized.Instructions.openSettings)
         }
         .padding()
         .background(Color(.secondarySystemGroupedBackground))
@@ -167,13 +129,11 @@ struct ContentView: View {
                 .font(.headline)
             
             VStack(alignment: .leading, spacing: 8) {
-                Text(Localized.isPortuguese ? 
-                     "Altura das Teclas: \(Int(keyHeight)) pontos" : 
-                     "Key Height: \(Int(keyHeight)) points")
+                Text(Localized.Settings.keyHeightFormat(Int(keyHeight)))
                     .font(.subheadline)
                 
                 Slider(value: $keyHeight, in: 50...120, step: 5) {
-                    Text(Localized.isPortuguese ? "Altura das Teclas" : "Key Height")
+                    Text(Localized.Settings.keyHeight)
                 } minimumValueLabel: {
                     Text("50")
                         .font(.caption)
@@ -181,13 +141,11 @@ struct ContentView: View {
                     Text("120")
                         .font(.caption)
                 }
-                .accessibilityValue("\(Int(keyHeight)) \(Localized.isPortuguese ? "pontos" : "points")")
+                .accessibilityValue("\(Int(keyHeight)) \(Localized.Settings.points)")
             }
             
             VStack(alignment: .leading, spacing: 8) {
-                Text(Localized.isPortuguese ? 
-                     "Tamanho da Fonte: \(Int(fontSize)) pontos" : 
-                     "Font Size: \(Int(fontSize)) points")
+                Text(Localized.Settings.fontSizeFormat(Int(fontSize)))
                     .font(.subheadline)
                 
                 Slider(value: $fontSize, in: 18...48, step: 2) {
@@ -199,18 +157,18 @@ struct ContentView: View {
                     Text("48")
                         .font(.caption)
                 }
-                .accessibilityValue("\(Int(fontSize)) \(Localized.isPortuguese ? "pontos" : "points")")
+                .accessibilityValue("\(Int(fontSize)) \(Localized.Settings.points)")
             }
             
             // Quick presets
             HStack(spacing: 12) {
-                PresetButton(title: Localized.isPortuguese ? "Médio" : "Medium", 
+                PresetButton(title: Localized.Presets.medium, 
                            keyHeight: 60, fontSize: 24, 
                            currentKeyHeight: $keyHeight, currentFontSize: $fontSize)
-                PresetButton(title: Localized.isPortuguese ? "Grande" : "Large", 
+                PresetButton(title: Localized.Presets.large, 
                            keyHeight: 80, fontSize: 32, 
                            currentKeyHeight: $keyHeight, currentFontSize: $fontSize)
-                PresetButton(title: Localized.isPortuguese ? "Extra Grande" : "Extra Large", 
+                PresetButton(title: Localized.Presets.extraLarge, 
                            keyHeight: 100, fontSize: 40, 
                            currentKeyHeight: $keyHeight, currentFontSize: $fontSize)
             }
@@ -224,7 +182,7 @@ struct ContentView: View {
     
     private var appearanceSection: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Label(Localized.isPortuguese ? "Aparência" : "Appearance", systemImage: "eye.fill")
+            Label(Localized.Sections.appearance, systemImage: "eye.fill")
                 .font(.headline)
             
             Toggle(isOn: $useHighContrast) {
@@ -247,16 +205,14 @@ struct ContentView: View {
     
     private var feedbackSection: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Label(Localized.isPortuguese ? "Feedback" : "Feedback", systemImage: "hand.tap.fill")
+            Label(Localized.Sections.feedback, systemImage: "hand.tap.fill")
                 .font(.headline)
             
             Toggle(isOn: $enableSoundFeedback) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(Localized.Settings.soundFeedback)
                         .font(.body)
-                    Text(Localized.isPortuguese ? 
-                         "Toca um som quando as teclas são pressionadas" : 
-                         "Play a sound when keys are pressed")
+                    Text(Localized.Settings.soundFeedbackDescription)
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
@@ -267,9 +223,7 @@ struct ContentView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(Localized.Settings.hapticFeedback)
                         .font(.body)
-                    Text(Localized.isPortuguese ? 
-                         "Vibração quando as teclas são pressionadas" : 
-                         "Vibration when keys are pressed")
+                    Text(Localized.Settings.hapticFeedbackDescription)
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
@@ -285,8 +239,7 @@ struct ContentView: View {
     
     private var smartFeaturesSection: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Label(Localized.isPortuguese ? "Recursos Inteligentes" : "Smart Features", 
-                  systemImage: "brain.head.profile")
+            Label(Localized.Sections.smartFeatures, systemImage: "brain.head.profile")
                 .font(.headline)
             
             Toggle(isOn: $enableAutocomplete) {
@@ -305,9 +258,7 @@ struct ContentView: View {
                 Image(systemName: "info.circle.fill")
                     .foregroundColor(.blue)
                 
-                Text(Localized.isPortuguese ? 
-                     "A capitalização automática está sempre ativa no início das frases" :
-                     "Auto-capitalization is always enabled at the start of sentences")
+                Text(Localized.Sections.autoCapInfo)
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
@@ -332,9 +283,7 @@ struct ContentView: View {
             )
             .frame(height: 200)
             .cornerRadius(12)
-            .accessibilityLabel(Localized.isPortuguese ? 
-                               "Visualização do teclado mostrando configurações atuais" :
-                               "Keyboard preview showing current settings")
+            .accessibilityLabel(Localized.Preview.keyboardLabel)
         }
         .padding()
         .background(Color(.secondarySystemGroupedBackground))

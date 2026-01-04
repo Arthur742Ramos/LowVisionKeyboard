@@ -1,0 +1,59 @@
+/* 
+  Localizable.strings
+  IpadKeyboard
+  
+  English localization
+*/
+
+// MARK: - App
+"app.title" = "Accessible Keyboard";
+"app.subtitle" = "Keyboard Settings";
+
+// MARK: - Settings
+"settings.keySize" = "Key Size";
+"settings.keyHeight" = "Key Height";
+"settings.keyHeightFormat" = "Key Height: %d points";
+"settings.fontSize" = "Font Size";
+"settings.fontSizeFormat" = "Font Size: %d points";
+"settings.points" = "points";
+"settings.highContrast" = "High Contrast";
+"settings.highContrastDescription" = "Thicker borders and stronger colors";
+"settings.soundFeedback" = "Typing Sounds";
+"settings.soundFeedbackDescription" = "Play a sound when keys are pressed";
+"settings.hapticFeedback" = "Haptic Feedback";
+"settings.hapticFeedbackDescription" = "Vibration when keys are pressed";
+"settings.autocomplete" = "Autocomplete";
+"settings.autocompleteDescription" = "Word suggestions while typing";
+"settings.language" = "Language";
+"settings.preview" = "Preview";
+
+// MARK: - Presets
+"preset.medium" = "Medium";
+"preset.large" = "Large";
+"preset.extraLarge" = "Extra Large";
+
+// MARK: - Instructions
+"instructions.title" = "How to Enable Keyboard";
+"instructions.step1" = "Open Settings app on your iPad";
+"instructions.step2" = "Go to General → Keyboard → Keyboards";
+"instructions.step3" = "Tap \"Add New Keyboard...\"";
+"instructions.step4" = "Select \"Accessible Keyboard\"";
+"instructions.step5" = "Allow Full Access for all features";
+"instructions.openSettings" = "Open Settings";
+
+// MARK: - Sections
+"section.header" = "Low Vision Keyboard";
+"section.headerDescription" = "Customize your keyboard for better visibility and accessibility";
+"section.appearance" = "Appearance";
+"section.feedback" = "Feedback";
+"section.smartFeatures" = "Smart Features";
+"section.autoCapInfo" = "Auto-capitalization is always enabled at the start of sentences";
+
+// MARK: - Preview
+"preview.keyboardLabel" = "Keyboard preview showing current settings";
+
+// MARK: - Keyboard Labels
+"keyboard.space" = "space";
+"keyboard.return" = "return";
+"keyboard.delete" = "delete";
+"keyboard.shift" = "shift";

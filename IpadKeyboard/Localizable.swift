@@ -2,14 +2,14 @@
 //  Localizable.swift
 //  IpadKeyboard
 //
-//  Localized strings for the app
+//  Localized strings for the app - uses NSLocalizedString for proper iOS localization
 //
 
 import Foundation
 
 struct Localized {
     
-    // MARK: - Current Language
+    // MARK: - Current Language Detection
     
     static var currentLanguage: String {
         let preferredLanguages = Locale.preferredLanguages
@@ -29,11 +29,11 @@ struct Localized {
     
     struct App {
         static var title: String {
-            isPortuguese ? "Teclado Acessível" : "Accessible Keyboard"
+            NSLocalizedString("app.title", comment: "App title")
         }
         
         static var subtitle: String {
-            isPortuguese ? "Configurações do Teclado" : "Keyboard Settings"
+            NSLocalizedString("app.subtitle", comment: "App subtitle")
         }
     }
     
@@ -41,43 +41,83 @@ struct Localized {
     
     struct Settings {
         static var keySize: String {
-            isPortuguese ? "Tamanho das Teclas" : "Key Size"
+            NSLocalizedString("settings.keySize", comment: "Key size setting label")
+        }
+        
+        static var keyHeight: String {
+            NSLocalizedString("settings.keyHeight", comment: "Key height setting label")
+        }
+        
+        static func keyHeightFormat(_ value: Int) -> String {
+            String(format: NSLocalizedString("settings.keyHeightFormat", comment: "Key height with value"), value)
         }
         
         static var fontSize: String {
-            isPortuguese ? "Tamanho da Fonte" : "Font Size"
+            NSLocalizedString("settings.fontSize", comment: "Font size setting label")
+        }
+        
+        static func fontSizeFormat(_ value: Int) -> String {
+            String(format: NSLocalizedString("settings.fontSizeFormat", comment: "Font size with value"), value)
+        }
+        
+        static var points: String {
+            NSLocalizedString("settings.points", comment: "Points unit")
         }
         
         static var highContrast: String {
-            isPortuguese ? "Alto Contraste" : "High Contrast"
+            NSLocalizedString("settings.highContrast", comment: "High contrast toggle label")
         }
         
         static var highContrastDescription: String {
-            isPortuguese ? "Bordas mais grossas e cores mais fortes" : "Thicker borders and stronger colors"
+            NSLocalizedString("settings.highContrastDescription", comment: "High contrast description")
         }
         
         static var soundFeedback: String {
-            isPortuguese ? "Som ao Digitar" : "Typing Sounds"
+            NSLocalizedString("settings.soundFeedback", comment: "Sound feedback toggle label")
+        }
+        
+        static var soundFeedbackDescription: String {
+            NSLocalizedString("settings.soundFeedbackDescription", comment: "Sound feedback description")
         }
         
         static var hapticFeedback: String {
-            isPortuguese ? "Vibração ao Digitar" : "Haptic Feedback"
+            NSLocalizedString("settings.hapticFeedback", comment: "Haptic feedback toggle label")
+        }
+        
+        static var hapticFeedbackDescription: String {
+            NSLocalizedString("settings.hapticFeedbackDescription", comment: "Haptic feedback description")
         }
         
         static var autocomplete: String {
-            isPortuguese ? "Autocompletar" : "Autocomplete"
+            NSLocalizedString("settings.autocomplete", comment: "Autocomplete toggle label")
         }
         
         static var autocompleteDescription: String {
-            isPortuguese ? "Sugestões de palavras enquanto digita" : "Word suggestions while typing"
+            NSLocalizedString("settings.autocompleteDescription", comment: "Autocomplete description")
         }
         
         static var language: String {
-            isPortuguese ? "Idioma" : "Language"
+            NSLocalizedString("settings.language", comment: "Language setting label")
         }
         
         static var preview: String {
-            isPortuguese ? "Visualização" : "Preview"
+            NSLocalizedString("settings.preview", comment: "Preview section label")
+        }
+    }
+    
+    // MARK: - Presets
+    
+    struct Presets {
+        static var medium: String {
+            NSLocalizedString("preset.medium", comment: "Medium preset button")
+        }
+        
+        static var large: String {
+            NSLocalizedString("preset.large", comment: "Large preset button")
+        }
+        
+        static var extraLarge: String {
+            NSLocalizedString("preset.extraLarge", comment: "Extra large preset button")
         }
     }
     
@@ -85,23 +125,67 @@ struct Localized {
     
     struct Instructions {
         static var title: String {
-            isPortuguese ? "Como Ativar o Teclado" : "How to Enable Keyboard"
+            NSLocalizedString("instructions.title", comment: "Instructions title")
         }
         
         static var step1: String {
-            isPortuguese ? "1. Abra Ajustes → Geral → Teclado" : "1. Open Settings → General → Keyboard"
+            NSLocalizedString("instructions.step1", comment: "Instruction step 1")
         }
         
         static var step2: String {
-            isPortuguese ? "2. Toque em Teclados → Adicionar Novo Teclado" : "2. Tap Keyboards → Add New Keyboard"
+            NSLocalizedString("instructions.step2", comment: "Instruction step 2")
         }
         
         static var step3: String {
-            isPortuguese ? "3. Selecione \"Teclado Acessível\"" : "3. Select \"Accessible Keyboard\""
+            NSLocalizedString("instructions.step3", comment: "Instruction step 3")
         }
         
         static var step4: String {
-            isPortuguese ? "4. Permita \"Acesso Total\" para recursos completos" : "4. Allow \"Full Access\" for all features"
+            NSLocalizedString("instructions.step4", comment: "Instruction step 4")
+        }
+        
+        static var step5: String {
+            NSLocalizedString("instructions.step5", comment: "Instruction step 5")
+        }
+        
+        static var openSettings: String {
+            NSLocalizedString("instructions.openSettings", comment: "Open settings button")
+        }
+    }
+    
+    // MARK: - Sections
+    
+    struct Sections {
+        static var header: String {
+            NSLocalizedString("section.header", comment: "Section header")
+        }
+        
+        static var headerDescription: String {
+            NSLocalizedString("section.headerDescription", comment: "Section header description")
+        }
+        
+        static var appearance: String {
+            NSLocalizedString("section.appearance", comment: "Appearance section")
+        }
+        
+        static var feedback: String {
+            NSLocalizedString("section.feedback", comment: "Feedback section")
+        }
+        
+        static var smartFeatures: String {
+            NSLocalizedString("section.smartFeatures", comment: "Smart features section")
+        }
+        
+        static var autoCapInfo: String {
+            NSLocalizedString("section.autoCapInfo", comment: "Auto-capitalization info")
+        }
+    }
+    
+    // MARK: - Preview
+    
+    struct Preview {
+        static var keyboardLabel: String {
+            NSLocalizedString("preview.keyboardLabel", comment: "Keyboard preview accessibility label")
         }
     }
     
@@ -109,19 +193,19 @@ struct Localized {
     
     struct Keyboard {
         static var space: String {
-            isPortuguese ? "espaço" : "space"
+            NSLocalizedString("keyboard.space", comment: "Space key label")
         }
         
         static var returnKey: String {
-            isPortuguese ? "retorno" : "return"
+            NSLocalizedString("keyboard.return", comment: "Return key label")
         }
         
         static var delete: String {
-            isPortuguese ? "apagar" : "delete"
+            NSLocalizedString("keyboard.delete", comment: "Delete key label")
         }
         
         static var shift: String {
-            isPortuguese ? "maiúsc" : "shift"
+            NSLocalizedString("keyboard.shift", comment: "Shift key label")
         }
     }
 }

@@ -59,11 +59,11 @@
 		8ED1D35E2F084C5E00010593 /* Exceptions for "IpadKeyboard" folder in "IpadKeyboard" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				AccessibleKeyboard/Info.plist,
 				AccessibleKeyboard/AccessibleKeyboardView.swift,
+				AccessibleKeyboard/Info.plist,
+				AccessibleKeyboard/KeyboardViewController.swift,
 				AccessibleKeyboard/KeyView.swift,
 				AccessibleKeyboard/SuggestionBarView.swift,
-				AccessibleKeyboard/KeyboardViewController.swift,
 				AccessibleKeyboard/WordPredictionEngine.swift,
 				Info.plist,
 			);
@@ -296,6 +296,7 @@
 			knownRegions = (
 				en,
 				Base,
+				"pt-BR",
 			);
 			mainGroup = 8ED1D3322F084C5B00010593;
 			minimizedProjectReferenceProxies = 1;

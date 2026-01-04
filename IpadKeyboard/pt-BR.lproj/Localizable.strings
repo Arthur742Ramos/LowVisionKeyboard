@@ -1,0 +1,59 @@
+/* 
+  Localizable.strings
+  IpadKeyboard
+  
+  Portuguese (Brazil) localization
+*/
+
+// MARK: - App
+"app.title" = "Teclado Acessível";
+"app.subtitle" = "Configurações do Teclado";
+
+// MARK: - Settings
+"settings.keySize" = "Tamanho das Teclas";
+"settings.keyHeight" = "Altura das Teclas";
+"settings.keyHeightFormat" = "Altura das Teclas: %d pontos";
+"settings.fontSize" = "Tamanho da Fonte";
+"settings.fontSizeFormat" = "Tamanho da Fonte: %d pontos";
+"settings.points" = "pontos";
+"settings.highContrast" = "Alto Contraste";
+"settings.highContrastDescription" = "Bordas mais grossas e cores mais fortes";
+"settings.soundFeedback" = "Som ao Digitar";
+"settings.soundFeedbackDescription" = "Toca um som quando as teclas são pressionadas";
+"settings.hapticFeedback" = "Vibração ao Digitar";
+"settings.hapticFeedbackDescription" = "Vibração quando as teclas são pressionadas";
+"settings.autocomplete" = "Autocompletar";
+"settings.autocompleteDescription" = "Sugestões de palavras enquanto digita";
+"settings.language" = "Idioma";
+"settings.preview" = "Visualização";
+
+// MARK: - Presets
+"preset.medium" = "Médio";
+"preset.large" = "Grande";
+"preset.extraLarge" = "Extra Grande";
+
+// MARK: - Instructions
+"instructions.title" = "Como Ativar o Teclado";
+"instructions.step1" = "Abra o app Ajustes no seu iPad";
+"instructions.step2" = "Vá em Geral → Teclado → Teclados";
+"instructions.step3" = "Toque em \"Adicionar Novo Teclado...\"";
+"instructions.step4" = "Selecione \"Teclado Acessível\"";
+"instructions.step5" = "Permita Acesso Total para todos os recursos";
+"instructions.openSettings" = "Abrir Ajustes";
+
+// MARK: - Sections
+"section.header" = "Teclado para Baixa Visão";
+"section.headerDescription" = "Personalize seu teclado para melhor visibilidade e acessibilidade";
+"section.appearance" = "Aparência";
+"section.feedback" = "Feedback";
+"section.smartFeatures" = "Recursos Inteligentes";
+"section.autoCapInfo" = "A capitalização automática está sempre ativa no início das frases";
+
+// MARK: - Preview
+"preview.keyboardLabel" = "Visualização do teclado mostrando configurações atuais";
+
+// MARK: - Keyboard Labels
+"keyboard.space" = "espaço";
+"keyboard.return" = "retorno";
+"keyboard.delete" = "apagar";
+"keyboard.shift" = "maiúsc";

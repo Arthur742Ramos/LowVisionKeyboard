@@ -11,6 +11,13 @@ class KeyboardViewController: UIInputViewController {
     private var keyboardView: AccessibleKeyboardView!
     private var suggestionBar: SuggestionBarView!
     private var currentWord: String = ""
+    
+    // Height constraint to prevent keyboard from growing when opened/closed rapidly
+    private var heightConstraint: NSLayoutConstraint?
+    
+    // Cache the calculated height to prevent race conditions during rapid open/close
+    private var cachedKeyboardHeight: CGFloat = 0
+    private var hasSetInitialHeight: Bool = false
 
     // User preferences
     private var keySize: CGFloat = 76 // larger default for low vision
@@ -22,21 +29,38 @@ class KeyboardViewController: UIInputViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Hide the system copy/paste/undo toolbar that overlaps the suggestion bar on iPad
-        let assistant = inputAssistantItem
-        assistant.leadingBarButtonGroups = []
-        assistant.trailingBarButtonGroups = []
-        if #available(iOS 15.0, *) {
-            assistant.allowsHidingShortcuts = true
-        }
+        hideInputAssistant()
         loadUserPreferences()
         setupKeyboard()
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        hideInputAssistant()
         loadUserPreferences()
         updateKeyboardAppearance()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        // Ensure input assistant is hidden after view fully appears
+        hideInputAssistant()
+    }
+    
+    /// Hides the system copy/paste/undo toolbar that overlaps the suggestion bar on iPad
+    private func hideInputAssistant() {
+        let assistant = inputAssistantItem
+        assistant.leadingBarButtonGroups = []
+        assistant.trailingBarButtonGroups = []
+        if #available(iOS 15.0, *) {
+            assistant.allowsHidingShortcuts = true
+        }
+    }
+    
+    override func viewWillLayoutSubviews() {
+        super.viewWillLayoutSubviews()
+        // Set height constraint before layout to prevent accumulation
+        setupHeightConstraint()
     }
 
     override func viewDidLayoutSubviews() {
@@ -82,6 +106,7 @@ class KeyboardViewController: UIInputViewController {
         keyboardView.highContrast = highContrast
         keyboardView.soundEnabled = soundEnabled
         keyboardView.hapticEnabled = hapticEnabled
+        keyboardView.isPortuguese = (currentLanguage == .portugueseBrazil)
 
         keyboardView.onKeyTap = { [weak self] key in
             self?.handleKeyTap(key)
@@ -107,14 +132,19 @@ class KeyboardViewController: UIInputViewController {
         guard bounds.width > 0 && bounds.height > 0 else { return }
 
         let insets = view.safeAreaInsets
-        let availableHeight = bounds.height - insets.top - insets.bottom
+        
+        // Add significant extra top margin to avoid overlap with system UI (copy/paste bar)
+        // 45pt is roughly the height of the system toolbar
+        let systemUIMargin: CGFloat = 45
+        let availableHeight = bounds.height - insets.top - insets.bottom - systemUIMargin
 
         // Suggestion bar adapts: roomy by default, but capped in compact layouts
         let baseSuggestionHeight = max(68, fontSize * 2.2)
         let suggestionHeight = min(baseSuggestionHeight, availableHeight * 0.25)
         let verticalSpacing: CGFloat = min(12, max(6, availableHeight * 0.02))
 
-        let suggestionY = insets.top
+        // Position suggestion bar below safe area + margin
+        let suggestionY = insets.top + systemUIMargin
         suggestionBar.frame = CGRect(x: 0, y: suggestionY, width: bounds.width, height: suggestionHeight)
 
         let keyboardY = suggestionY + suggestionHeight + verticalSpacing
@@ -129,8 +159,65 @@ class KeyboardViewController: UIInputViewController {
         keyboardView?.highContrast = highContrast
         keyboardView?.soundEnabled = soundEnabled
         keyboardView?.hapticEnabled = hapticEnabled
+        keyboardView?.isPortuguese = (currentLanguage == .portugueseBrazil)
         keyboardView?.updateAppearance()
         suggestionBar?.configure(fontSize: fontSize, useHighContrast: highContrast)
+    }
+    
+    // MARK: - Height Management
+    
+    private func setupHeightConstraint() {
+        // Calculate target height
+        let targetHeight = calculateKeyboardHeight()
+        
+        // If we already have a constraint, only update if height hasn't been set
+        // or if the target height matches our cached value (prevents accumulation)
+        if let existingConstraint = heightConstraint {
+            // Only use the cached height to prevent any accumulation
+            if hasSetInitialHeight {
+                existingConstraint.constant = cachedKeyboardHeight
+            } else {
+                cachedKeyboardHeight = targetHeight
+                existingConstraint.constant = targetHeight
+                hasSetInitialHeight = true
+            }
+            return
+        }
+        
+        // First time setup - create and cache
+        cachedKeyboardHeight = targetHeight
+        hasSetInitialHeight = true
+        
+        let constraint = view.heightAnchor.constraint(equalToConstant: targetHeight)
+        constraint.priority = UILayoutPriority(999)
+        constraint.isActive = true
+        heightConstraint = constraint
+    }
+    
+    // Call this only when user preferences actually change
+    private func recalculateHeight() {
+        cachedKeyboardHeight = calculateKeyboardHeight()
+        heightConstraint?.constant = cachedKeyboardHeight
+    }
+    
+    private func calculateKeyboardHeight() -> CGFloat {
+        // Calculate height based on key size and layout requirements
+        // 4 rows of keys + suggestion bar + spacing
+        let numberOfRows: CGFloat = 4
+        let keySpacing: CGFloat = 8
+        let verticalPadding: CGFloat = 10
+        let systemUIMargin: CGFloat = 45 // Match the margin in layoutKeyboard
+        
+        // Calculate row height based on keySize preference
+        let rowHeight = keySize
+        let keyboardRowsHeight = (rowHeight * numberOfRows) + (keySpacing * (numberOfRows - 1)) + (verticalPadding * 2)
+        
+        // Suggestion bar height
+        let suggestionHeight = max(68, fontSize * 2.2)
+        let verticalSpacingBetween: CGFloat = 12
+        
+        // Total height
+        return keyboardRowsHeight + suggestionHeight + verticalSpacingBetween + systemUIMargin
     }
 
     // MARK: - Key Handling
